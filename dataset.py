@@ -16,7 +16,7 @@ def np2Tensor(array):
     tensor = torch.FloatTensor(tmp.transpose(ts).astype(float))    
     return tensor
 
-class FeatureData(data.Dataset):
+class InputData(data.Dataset):
     def __init__(self, data_folder, padsize=50):
         self.local_imgflist = main_hyper.load_dir_structs(data_folder)
         self.padsize = padsize
@@ -32,15 +32,14 @@ class FeatureData(data.Dataset):
             return None
         
         ori_img = main_hyper.read_img(self.local_imgflist[index], input_size=shape, img_mean=main_hyper.IMG_MEAN)
-        # pad_img = tf.pad(ori_img, [[self.padsize, self.padsize], [self.padsize, self.padsize], [0, 0]], mode='REFLECT')
-        # cur_embed = self.model.test(pad_img.eval(session=self.sess))
-        cur_embed = self.model.test(ori_img.eval(session=self.sess))
+        pad_img = tf.pad(ori_img, [[self.padsize, self.padsize], [self.padsize, self.padsize], [0, 0]], mode='REFLECT')
+        cur_embed = self.model.test(pad_img.eval(session=self.sess))
         cur_embed = np.squeeze(cur_embed)
-        return np2Tensor(cur_embed)
+        cur_embed = cur_embed[self.padsize: (cur_embed.shape[0]-self.padsize), self.padsize: (cur_embed.shape[1]-self.padsize), :]
+        assert ori_img.shape[0] == cur_embed.shape[0] and ori_img.shape[1] == cur_embed.shape[1]
+        return np2Tensor(cur_embed), np2Tensor(ori_img)
 
     def __len__(self):
         return len(self.local_imgflist)
     
-    
-class ImageData(data.Dataset):
     
