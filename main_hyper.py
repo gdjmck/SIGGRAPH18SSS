@@ -42,6 +42,14 @@ def load_dir_structs(dataset_path):
 		curflist.extend(glob(os.path.join(dataset_path, files)))
 	return curflist
 
+def crop_center_and_resize(img, size):
+	s = tf.shape(img)
+	w, h = s[0], s[1]
+	c = tf.minimum(w, h)
+	w_start = (w - c) // 2
+	h_start = (h - c) // 2
+	center = img[w_start:w_start + c, h_start:h_start + c]
+	return tf.image.resize_images(img, [size, size])
 
 def read_img(t_imgfname, input_size, img_mean): # optional pre-processing arguments
 	"""Read one image and its corresponding mask with optional pre-processing.
@@ -65,21 +73,14 @@ def read_img(t_imgfname, input_size, img_mean): # optional pre-processing argume
 	
 # 	img = tf.image.decode_image(img_contents, channels=3)
 	img = tf.image.decode_png(img_contents, channels=3)
+	if input_size:
+		img = crop_center_and_resize(img, input_size)
 	img_r, img_g, img_b = tf.split(axis=2, num_or_size_splits=3, value=img)
 	img = tf.cast(tf.concat(axis=2, values=[img_b, img_g, img_r]), dtype=tf.float32)
 	# Extract mean.
 	img -= img_mean
-	
-	if input_size is not None:
-		h, w = input_size
 
-		# Randomly scale the images and labels.
-		newshape = tf.squeeze(tf.stack([h, w]), squeeze_dims=[1])
-		img2 = tf.image.resize_images(img, newshape)
-	else:
-		img2 = tf.image.resize_images(img, tf.shape(img)[0:2,]*2)
-		
-	return img2, img
+	return img
 
 
 
@@ -100,7 +101,9 @@ if __name__ == "__main__":
 		model.load(args.snapshot_dir)
 		
 		local_imgflist = load_dir_structs(args.data_dir)
+		print('local_imgfilist: ', local_imgflist)
 		save_folder = os.path.join(args.data_dir, args.feat_dir)
+		print('save_folder: ', save_folder)
 		if not os.path.exists(save_folder):
 			os.mkdir(save_folder)
 
@@ -111,7 +114,7 @@ if __name__ == "__main__":
 			print('{} Processing {}'.format(i, local_imgflist[i]))
 			padsize = 50
 			# the following read_img() calls could lead to a memory leakage-like issue or at least very slow. (need to be fixed later)
-			_, ori_img = read_img(local_imgflist[i], input_size = None, img_mean = IMG_MEAN)
+			ori_img = read_img(local_imgflist[i], input_size = None, img_mean = IMG_MEAN)
 			pad_img = tf.pad(ori_img, [[padsize,padsize], [padsize,padsize], [0,0]], mode='REFLECT')
 			cur_embed = model.test(pad_img.eval())
 			cur_embed = np.squeeze(cur_embed)

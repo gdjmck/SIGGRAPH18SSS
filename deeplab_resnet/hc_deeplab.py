@@ -12,7 +12,7 @@ import time
 import tensorflow as tf
 import numpy as np
 
-from tensorflow.python.keras._impl.keras.initializers import he_normal
+#from tensorflow.python.keras._impl.keras.initializers import he_normal
 from tensorflow.python import debug as tf_debug
 
 from .base import Model
@@ -37,8 +37,8 @@ Helper functions
 
 def lowrank_linear(input_, dim_bottle, dim_out, name="lowrank_linear"):
 	with tf.variable_scope(name):
-		weights1 = tf.get_variable("fc_weights1", [input_.get_shape()[-1], dim_bottle], initializer=he_normal())
-		weights2 = tf.get_variable("fc_weights2", [dim_bottle, dim_out], initializer=he_normal())
+		weights1 = tf.get_variable("fc_weights1", [input_.get_shape()[-1], dim_bottle]) # , initializer=he_normal()
+		weights2 = tf.get_variable("fc_weights2", [dim_bottle, dim_out]) # , initializer=he_normal()
 		biases = tf.get_variable("biases", [dim_out], initializer=tf.constant_initializer(0.01))
 
 		activation = tf.add(tf.matmul(tf.matmul(input_, weights1), weights2), biases)
@@ -46,7 +46,7 @@ def lowrank_linear(input_, dim_bottle, dim_out, name="lowrank_linear"):
 	
 def linear(input_, dim_out, name="linear"):
 	with tf.variable_scope(name):
-		weights1 = tf.get_variable("fc_weights1", [input_.get_shape()[-1], dim_out], initializer=he_normal())
+		weights1 = tf.get_variable("fc_weights1", [input_.get_shape()[-1], dim_out]) # , initializer=he_normal()
 		biases = tf.get_variable("fc_biases", [dim_out], initializer=tf.constant_initializer(0.01))
 
 		activation = tf.add(tf.matmul(input_, weights1), biases)
