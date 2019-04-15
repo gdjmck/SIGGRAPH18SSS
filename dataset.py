@@ -36,6 +36,7 @@ class InputData(data.Dataset):
         cur_embed = self.model.test(pad_img.eval(session=self.sess))
         cur_embed = np.squeeze(cur_embed)
         cur_embed = cur_embed[self.padsize: (cur_embed.shape[0]-self.padsize), self.padsize: (cur_embed.shape[1]-self.padsize), :]
+        ori_img = ori_img.eval(session=self.sess)
         assert ori_img.shape[0] == cur_embed.shape[0] and ori_img.shape[1] == cur_embed.shape[1]
         return np2Tensor(cur_embed), np2Tensor(ori_img)
 
