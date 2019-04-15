@@ -51,6 +51,19 @@ def crop_center_and_resize(img, size):
 	center = img[w_start:w_start + c, h_start:h_start + c]
 	return tf.image.resize_images(img, [size, size])
 
+def read_png4(t_imgfname, input_size, img_mean):
+	img_contents = tf.read_file(t_imgfname)
+	img = tf.image.decode_png(img_contents, channels=4)
+	r, g, b, alpha = tf.split(axis=2, num_or_size_splits=4, value=img)
+	img = tf.cast(tf.concat(axis=2, values=[b, g, r]), dtype=tf.float32)
+	alpha = tf.cast(alpha, dtype=tf.float32)
+	if input_size:
+		img = crop_center_and_resize(img, input_size)
+		alpha = crop_center_and_resize(alpha, input_size)
+	img -= img_mean
+    
+	return img, alpha
+
 def read_img(t_imgfname, input_size, img_mean): # optional pre-processing arguments
 	"""Read one image and its corresponding mask with optional pre-processing.
 	
