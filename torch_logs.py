@@ -4,7 +4,7 @@ import torch
 import datetime
 
 def timestamp():
-    return str(datetime.datetime.now()).replace(' ', '_')
+    return str(datetime.datetime.now()).replace(' ', '_').split(':')[0]
 
 class TrainLog():
     def __init__(self, args):
@@ -19,8 +19,8 @@ class TrainLog():
             os.makedirs(self.save_model_dir)
             
         summary_dir = os.path.join(self.save_dir, timestamp())
-        os.makedirs(summary_dir)
-        assert os.path.exists(summary_dir)
+        if not os.path.exists(summary_dir):
+            os.makedirs(summary_dir)
         self.summary = SummaryWriter(summary_dir)
             
     def next_step(self):
@@ -35,6 +35,16 @@ class TrainLog():
         if step is None:
             step = self.step
         self.summary.add_histogram(var_name, value, step)
+        
+    def add_image(self, image_name, img, step=None):
+        if step is None:
+            step = self.step
+        if isinstance(img, torch.autograd.Variable):
+            img = img.data
+        if len(img.shape) == 4:
+            img = img[0, :, :, :]
+        img = img.cpu().numpy()
+        self.summary.add_image(image_name, img, step)
             
     def load_model(self, model):
         lastest_out_path = "{}/ckpt_lastest.pth".format(self.save_model_dir)
