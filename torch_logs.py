@@ -20,6 +20,7 @@ class TrainLog():
             
         summary_dir = os.path.join(self.save_dir, timestamp())
         os.makedirs(summary_dir)
+        assert os.path.exists(summary_dir)
         self.summary = SummaryWriter(summary_dir)
             
     def next_step(self):
