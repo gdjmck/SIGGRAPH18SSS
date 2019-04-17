@@ -70,4 +70,21 @@ def get_arguments():
                         help="Where to save snapshots of the model.")
     parser.add_argument("--weight-decay", type=float, default=WEIGHT_DECAY,
                         help="Regularisation parameter for L2-loss.")
+    
+    # pytorch model arguments
+    parser.add_argument('--dataDir', default='./samples/', help='dataset directory')
+    parser.add_argument('--validDir', default='./validset', help='validation set directory')
+    parser.add_argument('--saveDir', default='./ckpt', help='model save dir')
+    parser.add_argument('--train_batch', type=int, default=8, help='input batch size for train')
+    parser.add_argument('--patch_size', type=int, default=256, help='patch size for train')
+    
+    parser.add_argument('--finetuning', action='store_true', default=False, help='finetuning the training')
+    parser.add_argument('--without_gpu', action='store_true', default=False, help='no use gpu')
+    parser.add_argument('--lr', type=float, default=1e-4, help='learning rate')
+    parser.add_argument('--lrDecay', type=int, default=100)
+    parser.add_argument('--lrdecayType', default='keep')
+    parser.add_argument('--nEpochs', type=int, default=300, help='number of epochs to train')
+    parser.add_argument('--save_epoch', type=int, default=1, help='number of epochs to save model')
+
+    parser.add_argument('--train_phase', default= 'end_to_end', help='train phase')
     return parser.parse_args()

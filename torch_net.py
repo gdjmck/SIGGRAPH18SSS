@@ -5,37 +5,31 @@ import torch.nn.functional as F
 class FCN(nn.Module):
     def __init__(self):
         super(FCN, self).__init__()
-        self.conv_1 = nn.Sequential(nn.Conv2d(128, 64, 1, 1),
-                                  nn.BatchNorm2d(64),
+        self.conv_1 = nn.Sequential(nn.Conv2d(128, 64, 1, 1, bias=False),
                                   nn.ReLU()) # depth 128-> 64
-        self.conv_2 = nn.Sequential(nn.Conv2d(64, 32, 1, 1),
-                                   nn.BatchNorm2d(32),
+        self.conv_2 = nn.Sequential(nn.Conv2d(64, 32, 1, 1, bias=False),
                                    nn.ReLU()) # depth 64-> 32
-        self.conv_3 = nn.Sequential(nn.Conv2d(32, 16, 1, 1),
-                                   nn.BatchNorm2d(16),
+        self.conv_3 = nn.Sequential(nn.Conv2d(32, 16, 1, 1, bias=False),
                                    nn.ReLU()) # depth 32-> 16
-        self.conv_4 = nn.Sequential(nn.Conv2d(16, 8, 1, 1),
-                                   nn.BatchNorm2d(8),
+        self.conv_4 = nn.Sequential(nn.Conv2d(16, 8, 1, 1, bias=False),
                                    nn.ReLU()) # depth 16-> 8
         
         # extract low level features from origin image
         self.low_level_1 = nn.Sequential(nn.Conv2d(3, 16, 5, 1, 2), 
                                          nn.BatchNorm2d(16))
-        self.low_level_2 = nn.Sequential(nn.Conv2d(16, 8, 3, 1, 2), 
+        self.low_level_2 = nn.Sequential(nn.Conv2d(16, 8, 3, 1, 1), 
                                          nn.BatchNorm2d(8),
                                          nn.ReLU())
-        self.low_level_3 = nn.Sequential(nn.Conv2d(8, 4, 3, 1, 2), 
+        self.low_level_3 = nn.Sequential(nn.Conv2d(8, 4, 3, 1, 1), 
                                          nn.BatchNorm2d(4),
                                          nn.ReLU())
         
         # after concat with origin image, depth becomes 12
-        self.conv_5 = nn.Sequential(nn.Conv2d(12, 6, 1, 1),
-                                   nn.BatchNorm2d(6),
+        self.conv_5 = nn.Sequential(nn.Conv2d(12, 6, 1, 1, bias=False),
                                    nn.ReLU())
-        self.conv_6 = nn.Sequential(nn.Conv2d(6, 3, 1, 1),
-                                   nn.BatchNorm2d(3),
+        self.conv_6 = nn.Sequential(nn.Conv2d(6, 3, 1, 1, bias=False),
                                    nn.ReLU())
-        self.conv_7 = nn.Sequential(nn.Conv2d(3, 1, 1, 1),
+        self.conv_7 = nn.Sequential(nn.Conv2d(3, 1, 1, 1, bias=False),
                                    nn.ReLU())
         
     def forward(self, feat, img):
