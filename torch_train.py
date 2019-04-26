@@ -132,8 +132,6 @@ def main():
             iou_valid_8 += iou_8
             iou_valid_9 += iou_9
             print('loss: %.3f'%(loss_valid_/(j+1)))
-            if j == 4:
-                break
         trainlog.add_scalar('loss_val', loss_valid_/(j+1), epoch)
         trainlog.add_scalar('iou_val.2', iou_valid_2/(j+1), epoch)
         trainlog.add_scalar('iou_val.4', iou_valid_4/(j+1), epoch)
